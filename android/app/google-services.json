@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "738830061709",
+    "firebase_url": "https://interactive-talks-default-rtdb.firebaseio.com",
+    "project_id": "interactive-talks",
+    "storage_bucket": "interactive-talks.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:738830061709:android:5da4e41e3a21b9c39912c4",
+        "android_client_info": {
+          "package_name": "com.example.chatapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "738830061709-ghr7hl6610ev1dssircki7ucb2l1qk1u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpJYXPlVsUSrB2-AE-Q0lT9vRBpMfzrr4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "738830061709-ghr7hl6610ev1dssircki7ucb2l1qk1u.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "738830061709-retor67kh0644bfu7ia4ps6ocddeqkj8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.chatapp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
