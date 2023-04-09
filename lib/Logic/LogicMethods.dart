@@ -76,11 +76,8 @@ List getListOfUsersInMessagesList(BuildContext context) {
   if (context.read<GetUserDataCubit>().state["messagesList"] != "" && context.read<GetUserDataCubit>().state["messagesList"] != null) {
     for (String element in (context.read<GetUserDataCubit>().state["messagesList"] as dynamic).keys) {
       usersList.add(element);
-      // print("user had chat with $element");
     }
-    // usersList.forEach((element) { });
     return usersList;
   }
   return [];
 }
-// .toString().replaceAllMapped(RegExp(r'[(\)]+'), (match) => ""));

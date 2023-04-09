@@ -39,7 +39,7 @@ showSearchDialog(BuildContext context, List users) {
       builder: ((context) {
         List listToBeDisplayed = [];
         bool isTyping = false;
-        context.read<GetUsersListCubit>().getSnapshotValue;
+        context.read<GetUsersListCubit>().getSnapshotValue();
         Color color = const Color.fromARGB(151, 16, 15, 15);
         context.read<GetUserDataCubit>().getSnapshotValue(context.read<GetUserName>().state);
 

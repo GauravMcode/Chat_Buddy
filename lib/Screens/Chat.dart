@@ -43,11 +43,9 @@ class _ChatState extends State<Chat> with AutomaticKeepAliveClientMixin {
   }
 
   createMessagesList(BuildContext context, String userName) {
-    String Currentuser = context.read<GetUserName>().state;
-    FirebaseDatabase.instance.ref("usersData/$Currentuser").child("messagesList/$userName/").set({"123": "Say hii to $userName"});
-    FirebaseDatabase.instance.ref("usersData/$userName").child("messagesList/$Currentuser/").set({"125": "Say hii to $Currentuser"});
-    // FirebaseDatabase.instance.ref("usersData/$Currentuser").child("messagesList/$userName/").update({"124": Currentuser});
-    // FirebaseDatabase.instance.ref("usersData/$userName").child("messagesList/$userName/").update({"126": Currentuser});
+    String currentUser = context.read<GetUserName>().state;
+    FirebaseDatabase.instance.ref("usersData/$currentUser").child("messagesList/$userName/").set({"123": "Say hii to $userName"});
+    FirebaseDatabase.instance.ref("usersData/$userName").child("messagesList/$currentUser/").set({"125": "Say hii to $currentUser"});
   }
 
   getMessagesList(BuildContext context, String currentUser, String receiver) async {
