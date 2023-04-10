@@ -1,5 +1,4 @@
 import 'package:chatapp/Logic/CubitLogic.dart';
-import 'package:chatapp/Model/User.dart';
 import 'package:chatapp/Screens/HomePage.dart';
 import 'package:chatapp/auxilaries/Colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,7 +15,7 @@ class Signup extends StatefulWidget {
 
 class _SignupState extends State<Signup> {
   Map createUserDetails(String name, String emailid, [String photoUrl = ""]) {
-    return {"name": name, "emailId": emailid, "photoUrl": "$photoUrl", "isSignedin": "${true}", "friendsList": "", "messagesList": "", "isPrivate": "${false}", "connectRequests": "", "viewers": ""};
+    return {"name": name, "emailId": emailid, "photoUrl": photoUrl, "isSignedin": "${true}", "friendsList": "", "messagesList": "", "isPrivate": "${false}", "connectRequests": "", "viewers": ""};
   }
 
   @override
@@ -27,20 +26,21 @@ class _SignupState extends State<Signup> {
     context.read<GetUsersListCubit>().getSnapshotValue();
   }
 
-  FirebaseAuth _auth = FirebaseAuth.instance;
-  DatabaseReference _database = FirebaseDatabase.instance.ref().child("usersData");
-  GlobalKey<FormState> _formkey = GlobalKey<FormState>();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final DatabaseReference _database = FirebaseDatabase.instance.ref().child("usersData");
+  final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
 
   dynamic _userDataL;
 
   Widget _formField(String field, bool isObscure, TextEditingController controller, String saveTo) {
-    return Container(
+    return SizedBox(
       width: MediaQuery.of(context).size.width * 0.8,
       child: TextFormField(
         validator: ((value) {
           if (value == null || value.isEmpty) {
             return "Please enter the $field";
           }
+          return null;
         }),
         controller: controller,
         onFieldSubmitted: (value) => saveTo = controller.text,
@@ -63,15 +63,13 @@ class _SignupState extends State<Signup> {
     try {
       UserCredential newUser = await _auth.createUserWithEmailAndPassword(email: _emailController.text, password: _passwordController.text);
       saveUser();
-      if (newUser != null) {
-        await FirebaseAuth.instance.currentUser?.updateDisplayName(_userNameController.text);
-        await FirebaseAuth.instance.currentUser?.reload();
-        context.read<GetUserDataCubit>().getSnapshotValue(_userNameController.text);
+      await FirebaseAuth.instance.currentUser?.updateDisplayName(_userNameController.text);
+      await FirebaseAuth.instance.currentUser?.reload();
+      context.read<GetUserDataCubit>().getSnapshotValue(_userNameController.text);
 
-        context.read<GetUserName>().gotUserName(_userNameController.text);
-        context.read<AuthCubit>().authSignin();
-        Navigator.pop(context);
-      }
+      context.read<GetUserName>().gotUserName(_userNameController.text);
+      context.read<AuthCubit>().authSignin();
+      Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       showError(e.message);
     }
@@ -83,11 +81,11 @@ class _SignupState extends State<Signup> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text("Error"),
+            title: const Text("Error"),
             content: Text(errorMessage.toString()),
             actions: <Widget>[
               MaterialButton(
-                child: Text("Ok"),
+                child: const Text("Ok"),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -102,21 +100,21 @@ class _SignupState extends State<Signup> {
     Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: ((context) => DefaultTabController(
+            builder: ((context) => const DefaultTabController(
                   length: 3,
                   child: HomePage(),
                 ))));
   }
 
   //Text Editing controllers:
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _userNameController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _userNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   //Show snackbar:
   SnackBar snackBar = SnackBar(
-    duration: Duration(milliseconds: 2100),
+    duration: const Duration(milliseconds: 2100),
     dismissDirection: DismissDirection.up,
     content: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -126,7 +124,7 @@ class _SignupState extends State<Signup> {
           style: TextStyle(color: colors1[5]),
         ),
         Padding(
-          padding: EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(20.0),
           child: CircularProgressIndicator(
             color: colors1[5],
           ),
@@ -135,21 +133,22 @@ class _SignupState extends State<Signup> {
     ),
     backgroundColor: colors1[0],
     elevation: 5.0,
-    padding: EdgeInsets.all(5.0),
+    padding: const EdgeInsets.all(5.0),
   );
 
   @override
   Widget build(BuildContext context) {
     return context.read<GetUsersListCubit>().state == []
-        ? Center(
+        ? const Center(
             child: CircularProgressIndicator(),
           )
         : Scaffold(
             appBar: AppBar(
-              title: Text("Sign-Up to Chat App"),
+              title: const Text("Sign-Up to Chat-buddy", style: TextStyle(fontFamily: 'Alkatra')),
+              actions: const [Icon(Icons.chat_bubble_rounded), SizedBox(width: 20)],
             ),
             body: Container(
-              constraints: BoxConstraints.expand(),
+              constraints: const BoxConstraints.expand(),
               decoration: backgroundGradient(),
               child: SingleChildScrollView(
                 child: Center(
@@ -157,14 +156,14 @@ class _SignupState extends State<Signup> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        padding: EdgeInsets.all(10.0),
+                        padding: const EdgeInsets.all(10.0),
                         child: Form(
                             key: _formkey,
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Padding(padding: EdgeInsets.all(30)),
-                                Container(
+                                const Padding(padding: EdgeInsets.all(30)),
+                                SizedBox(
                                   width: MediaQuery.of(context).size.width * 0.8,
                                   child: TextFormField(
                                     maxLength: 20,
@@ -179,11 +178,11 @@ class _SignupState extends State<Signup> {
                                       return null;
                                     }),
                                     controller: _nameController,
-                                    decoration: InputDecoration(label: Text("Name"), border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0))),
+                                    decoration: InputDecoration(label: const Text("Name"), border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0))),
                                   ),
                                 ),
-                                Padding(padding: EdgeInsets.all(15)),
-                                Container(
+                                const Padding(padding: EdgeInsets.all(15)),
+                                SizedBox(
                                   width: MediaQuery.of(context).size.width * 0.8,
                                   child: TextFormField(
                                     maxLength: 14,
@@ -200,40 +199,42 @@ class _SignupState extends State<Signup> {
                                       return null;
                                     }),
                                     controller: _userNameController,
-                                    decoration: InputDecoration(label: Text("Create a unique user Name"), border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0))),
+                                    decoration: InputDecoration(label: const Text("Create a unique user Name"), border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0))),
                                   ),
                                 ),
-                                Padding(padding: EdgeInsets.all(15)),
-                                Container(
+                                const Padding(padding: EdgeInsets.all(15)),
+                                SizedBox(
                                   width: MediaQuery.of(context).size.width * 0.8,
                                   child: TextFormField(
                                     validator: ((value) {
                                       if (value == null || value.isEmpty) {
                                         return "Please enter the Email";
                                       }
+                                      return null;
                                     }),
                                     controller: _emailController,
-                                    decoration: InputDecoration(label: Text("Email"), border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0))),
+                                    decoration: InputDecoration(label: const Text("Email"), border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0))),
                                   ),
                                 ),
-                                Padding(padding: EdgeInsets.all(20)),
-                                Container(
+                                const Padding(padding: EdgeInsets.all(20)),
+                                SizedBox(
                                   width: MediaQuery.of(context).size.width * 0.8,
                                   child: TextFormField(
                                     validator: ((value) {
                                       if (value == null || value.isEmpty) {
                                         return "Please enter the Password";
                                       }
+                                      return null;
                                     }),
                                     controller: _passwordController,
                                     obscureText: true,
-                                    decoration: InputDecoration(label: Text("Password"), border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0))),
+                                    decoration: InputDecoration(label: const Text("Password"), border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0))),
                                   ),
                                 ),
                               ],
                             )),
                       ),
-                      Padding(padding: EdgeInsets.only(top: 20.0)),
+                      const Padding(padding: EdgeInsets.only(top: 20.0)),
                       ElevatedButton(
                           onPressed: () {
                             if (_formkey.currentState!.validate()) {
@@ -243,7 +244,7 @@ class _SignupState extends State<Signup> {
                               ScaffoldMessenger.of(context).showSnackBar(snackBar);
                             }
                           },
-                          child: Text("Sign-Up")),
+                          child: const Text("Sign-Up")),
                       // ElevatedButton(
                       //     onPressed: () {
                       //       setState(() {

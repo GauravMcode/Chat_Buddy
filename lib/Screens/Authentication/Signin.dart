@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 class Signin extends StatefulWidget {
   const Signin({super.key});
@@ -20,6 +21,7 @@ class _SigninState extends State<Signin> {
     // TODO: implement initState
     super.initState();
     context.read<GetUsersListCubit>().getSnapshotValue();
+    FlutterNativeSplash.remove();
   }
 
   // @override
@@ -30,20 +32,21 @@ class _SigninState extends State<Signin> {
   // }
 
   var email;
-  FirebaseAuth _auth = FirebaseAuth.instance;
-  GlobalKey<FormState> _formkey = GlobalKey<FormState>();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
 
-  Widget_formField(String field, bool isObscure, TextEditingController _controller) {
-    return Container(
+  Widget_formField(String field, bool isObscure, TextEditingController controller) {
+    return SizedBox(
       width: MediaQuery.of(context).size.width * 0.8,
       child: TextFormField(
         validator: ((value) {
           if (value == null || value.isEmpty) {
             return "Please enter the $field";
           }
+          return null;
         }),
         obscureText: isObscure,
-        controller: _controller,
+        controller: controller,
         decoration: InputDecoration(label: Text(field), border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0))),
       ),
     );
@@ -78,11 +81,11 @@ class _SigninState extends State<Signin> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text("Error"),
+            title: const Text("Error"),
             content: Text(errorMessage.toString()),
             actions: <Widget>[
               MaterialButton(
-                child: Text("Ok"),
+                child: const Text("Ok"),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -94,7 +97,7 @@ class _SigninState extends State<Signin> {
 
   //Navigators:
   navigateToSignupScreen() {
-    Navigator.push(context, MaterialPageRoute(builder: ((context) => Signup())));
+    Navigator.push(context, MaterialPageRoute(builder: ((context) => const Signup())));
   }
   // navigateToHomeScreen() {
   //   Navigator.pushReplacement(
@@ -107,12 +110,12 @@ class _SigninState extends State<Signin> {
   // }
 
   //Text Editing controllers:
-  TextEditingController _userNameController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _userNameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   //Show snackbar:
   SnackBar snackBar = SnackBar(
-    duration: Duration(milliseconds: 1200),
+    duration: const Duration(milliseconds: 1200),
     dismissDirection: DismissDirection.up,
     content: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -122,7 +125,7 @@ class _SigninState extends State<Signin> {
           style: TextStyle(color: colors1[5]),
         ),
         Padding(
-          padding: EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(20.0),
           child: CircularProgressIndicator(
             color: colors1[5],
           ),
@@ -131,7 +134,7 @@ class _SigninState extends State<Signin> {
     ),
     backgroundColor: colors1[0],
     elevation: 5.0,
-    padding: EdgeInsets.all(5.0),
+    padding: const EdgeInsets.all(5.0),
   );
 
   @override
@@ -139,78 +142,94 @@ class _SigninState extends State<Signin> {
     context.read<GetUserDataCubit>().getSnapshotValue(context.read<InputSearchCubit>().state);
     return Scaffold(
       appBar: AppBar(
-        title: Text("Sign-In to Chat App"),
+        title: const Text(
+          "Sign-In to Chat-buddy",
+          style: TextStyle(fontFamily: 'Alkatra'),
+        ),
+        actions: const [Icon(Icons.chat_bubble_rounded), SizedBox(width: 20)],
       ),
       body: Container(
         decoration: backgroundGradient(),
-        child: BlocBuilder<InputSearchCubit, String>(
-          builder: (context, state) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(10.0),
-                    child: Form(
-                        key: _formkey,
-                        child: Column(
-                          children: [
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.8,
-                              child: TextFormField(
-                                validator: ((value) {
-                                  if (value == null || value.isEmpty) {
-                                    return "Please enter the User Name";
-                                  }
-                                }),
-                                controller: _userNameController,
-                                onChanged: (value) {
-                                  context.read<InputSearchCubit>().startInputing(_userNameController.text);
-                                },
-                                decoration: InputDecoration(label: Text("User Name"), border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0))),
-                              ),
-                            ),
-                            Padding(padding: EdgeInsets.all(30)),
-                            Widget_formField("Password", true, _passwordController),
-                          ],
-                        )),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      if (_formkey.currentState!.validate()) {
-                        FocusManager.instance.primaryFocus?.unfocus();
-
-                        if (!context.read<GetUsersListCubit>().state.contains(context.read<InputSearchCubit>().state)) {
-                          showError("User Name doesn't Exist");
-                        }
-                        Signin();
-
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                      }
-                    },
-                    child: Text("Sign-In"),
-                  ),
-                  Padding(padding: EdgeInsets.all(10.0)),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Don't have an Account?"),
-                      SizedBox(
-                        width: 5,
+        height: MediaQuery.of(context).size.height,
+        child: SingleChildScrollView(
+          child: BlocBuilder<InputSearchCubit, String>(
+            builder: (context, state) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 5, 10, 30),
+                      child: Image.asset(
+                        'assets/logo.png',
+                        width: 250,
+                        height: 250,
                       ),
-                      GestureDetector(
-                        onTap: () => navigateToSignupScreen(),
-                        child: Text(
-                          "Create one",
-                          style: TextStyle(color: colors1[1]),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Form(
+                          key: _formkey,
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.8,
+                                child: TextFormField(
+                                  validator: ((value) {
+                                    if (value == null || value.isEmpty) {
+                                      return "Please enter the User Name";
+                                    }
+                                    return null;
+                                  }),
+                                  controller: _userNameController,
+                                  onChanged: (value) {
+                                    context.read<InputSearchCubit>().startInputing(_userNameController.text);
+                                  },
+                                  decoration: InputDecoration(label: const Text("User Name"), border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0))),
+                                ),
+                              ),
+                              const Padding(padding: EdgeInsets.all(30)),
+                              Widget_formField("Password", true, _passwordController),
+                            ],
+                          )),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        if (_formkey.currentState!.validate()) {
+                          FocusManager.instance.primaryFocus?.unfocus();
+
+                          if (!context.read<GetUsersListCubit>().state.contains(context.read<InputSearchCubit>().state)) {
+                            showError("User Name doesn't Exist");
+                          }
+                          Signin();
+
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        }
+                      },
+                      child: const Text("Sign-In"),
+                    ),
+                    const Padding(padding: EdgeInsets.all(10.0)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text("Don't have an Account?"),
+                        const SizedBox(
+                          width: 5,
                         ),
-                      )
-                    ],
-                  )
-                ],
-              ),
-            );
-          },
+                        GestureDetector(
+                          onTap: () => navigateToSignupScreen(),
+                          child: Text(
+                            "Create one",
+                            style: TextStyle(color: colors1[1]),
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );

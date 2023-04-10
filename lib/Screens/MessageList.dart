@@ -2,6 +2,7 @@ import 'package:chatapp/Logic/LogicMethods.dart';
 import 'package:chatapp/Screens/Chat.dart';
 import 'package:chatapp/auxilaries/Colors.dart';
 import 'package:chatapp/Logic/CubitLogic.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -14,6 +15,7 @@ class MessageList extends StatefulWidget {
 
 class _MessageListState extends State<MessageList> {
   List listofChatUsers = [];
+  ValueNotifier<List<String>> imagesList = ValueNotifier(<String>[]);
 
   @override
   void initState() {
@@ -29,6 +31,8 @@ class _MessageListState extends State<MessageList> {
 
   @override
   Widget build(BuildContext context) {
+    imagesList.value = getImagesList(listofChatUsers);
+
     return BlocBuilder<GetUserDataCubit, dynamic>(
       builder: (context, state) {
         listofChatUsers = getListOfUsersInMessagesList(context);
@@ -97,13 +101,36 @@ class _MessageListState extends State<MessageList> {
                           }
                         }
                         return ListTile(
-                          leading: CircleAvatar(
-                            child: Image.asset(
-                              "assets/defaultprofile.png",
-                              alignment: Alignment.centerLeft,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
+                          leading: ValueListenableBuilder(
+                              valueListenable: imagesList,
+                              builder: (context, value, child) {
+                                return CircleAvatar(
+                                  radius: 30,
+                                  foregroundImage: value.isEmpty
+                                      ? Image.asset(
+                                          'assets/defaultprofile.png',
+                                          alignment: Alignment.centerLeft,
+                                          fit: BoxFit.contain,
+                                        ).image
+                                      : value.length <= index
+                                          ? Image.asset(
+                                              'assets/defaultprofile.png',
+                                              alignment: Alignment.centerLeft,
+                                              fit: BoxFit.contain,
+                                            ).image
+                                          : value[index] == ''
+                                              ? Image.asset(
+                                                  'assets/defaultprofile.png',
+                                                  alignment: Alignment.centerLeft,
+                                                  fit: BoxFit.contain,
+                                                ).image
+                                              : Image.network(
+                                                  value[index],
+                                                  alignment: Alignment.centerLeft,
+                                                  fit: BoxFit.contain,
+                                                ).image,
+                                );
+                              }),
                           trailing: Column(
                             children: [
                               Text("${dateTime.day}/${dateTime.month}/${dateTime.year}"),
@@ -140,7 +167,7 @@ class _MessageListState extends State<MessageList> {
                           onTap: () {
                             // context.read<SentMessagesCubit>().getSentMessagesList(context.read<GetUserName>().state, listofChatUsers[index]);
                             // context.read<ReceivedMessagesCubit>().getSentMessagesList(listofChatUsers[index], context.read<GetUserName>().state);
-                            Navigator.of(context).push(MaterialPageRoute(builder: ((context) => Chat(listofChatUsers[index]))));
+                            Navigator.of(context).push(MaterialPageRoute(builder: ((context) => Chat(listofChatUsers[index], imagesList.value[index]))));
                             context.read<SentMessagesCubit>().getSentMessagesList(context.read<GetUserName>().state, listofChatUsers[index]);
                             context.read<ReceivedMessagesCubit>().getSentMessagesList(listofChatUsers[index], context.read<GetUserName>().state);
                           },
@@ -151,5 +178,14 @@ class _MessageListState extends State<MessageList> {
     );
   }
 
-  //context.read<MessageCubit>().state.length > 10 ? Text("${context.read<MessageCubit>().state.substring(0, 10)}..") :
+  List<String> getImagesList(List chatUsersList) {
+    List<String> imageList = [];
+    for (var element in chatUsersList) {
+      print(chatUsersList);
+      FirebaseDatabase.instance.ref("usersData").child("$element").onValue.listen((DatabaseEvent event) {
+        imageList.add((event.snapshot.value as Map)['photoUrl']);
+      });
+    }
+    return imageList;
+  }
 }

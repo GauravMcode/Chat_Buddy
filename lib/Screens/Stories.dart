@@ -1,9 +1,4 @@
-import 'package:chatapp/Model/User.dart';
-import 'package:chatapp/Screens/Chat.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:chatapp/Logic/CubitLogic.dart';
 
@@ -16,38 +11,43 @@ class Stories extends StatefulWidget {
 
 class _StoriesState extends State<Stories> {
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    context.read<GetUsersListCubit>().getSnapshotValue();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    // TODO: implement buil
-    // print(data);
-// context.read<DateTimeCubit>().state
-    return context.read<GetUsersListCubit>().state == {}
-        ? const Center(child: CircularProgressIndicator())
-        : BlocBuilder<GetUsersListCubit, dynamic>(
-            builder: (context, state) {
-              return Container(
-                  child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(""),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(8.0),
-                      // child: Text("${users}"),
-                    ),
-                  ],
-                ),
-              ));
-            },
-          );
+    final userData = context.read<GetUserDataCubit>().state;
+
+    return Scaffold(
+        body: Column(
+      children: [
+        PhysicalModel(
+          elevation: 40,
+          color: Colors.grey,
+          child: ListTile(
+            tileColor: Colors.grey,
+            leading: CircleAvatar(
+              backgroundImage: NetworkImage(userData['photoUrl']),
+              radius: 30,
+              child: const Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Icon(
+                    Icons.add_a_photo_rounded,
+                    size: 20,
+                    color: Colors.blueGrey,
+                  )),
+            ),
+            title: const Text('Add Story to share with friends'),
+            trailing: const Icon(Icons.add_a_photo_sharp),
+          ),
+        ),
+        const SizedBox(height: 20),
+        const Divider(
+          height: 10,
+          thickness: 10,
+        ),
+        const Spacer(flex: 1),
+        const Center(
+          child: Text('No Stories available', style: TextStyle(fontStyle: FontStyle.italic)),
+        ),
+        const Spacer(flex: 1),
+      ],
+    ));
   }
 }

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:chatapp/Logic/CubitLogic.dart';
 import 'package:chatapp/Logic/LogicMethods.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:path/path.dart';
 import 'Colors.dart';
 import 'package:chatapp/Screens/Chat.dart';
 import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
@@ -163,7 +162,7 @@ showSearchDialog(BuildContext context, List users) {
                                                   context.read<ReceivedMessagesCubit>().getSentMessagesList(listToBeDisplayed[index], context.read<GetUserName>().state);
 
                                                   Navigator.of(context).push(
-                                                    MaterialPageRoute(builder: ((context) => Chat(listToBeDisplayed[index]))),
+                                                    MaterialPageRoute(builder: ((context) => Chat(listToBeDisplayed[index], ''))),
                                                   );
                                                 }),
                                                 child: BlocBuilder<GetUserDataCubit, dynamic>(

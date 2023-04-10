@@ -12,21 +12,33 @@ bool isDateChanged = false;
 
 class Chat extends StatefulWidget {
   String receiverName;
-  Chat(this.receiverName, {super.key});
+  String image;
+  Chat(this.receiverName, this.image, {super.key});
 
   @override
-  State<Chat> createState() => _ChatState(receiverName);
+  State<Chat> createState() => _ChatState(receiverName, image);
 }
 
 //todo: the current user will save the typed messaged into its own sentList(messagesList) & then access it as well as the sentList of Receiver
 
 class _ChatState extends State<Chat> with AutomaticKeepAliveClientMixin {
+  String receiverName;
+  String image;
+  _ChatState(this.receiverName, this.image);
+  List<Color> heartColorList = [Colors.white, Colors.red];
+  var heartColor = Colors.white;
+  TextEditingController inputMessage = TextEditingController();
+  ValueNotifier<String> imageString = ValueNotifier('');
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     context.read<InputSearchCubit>().stopInputing();
     currentUser = context.read<GetUserName>().state;
+    if (image == '') {
+      getImage();
+    }
   }
 
   final ScrollController _scrollController1 = ScrollController();
@@ -35,30 +47,6 @@ class _ChatState extends State<Chat> with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
-// function to send message to messagesList of current user of app
-
-  sendtheMessage(String message, String sender, String receiver, String timeasMillisecondsepoch) async {
-    FirebaseDatabase.instance.ref("usersData/$sender/messagesList/$receiver/").update({timeasMillisecondsepoch: message});
-    FirebaseDatabase.instance.ref("usersData/$receiver/receivedList/$sender/").update({timeasMillisecondsepoch: message});
-  }
-
-  createMessagesList(BuildContext context, String userName) {
-    String currentUser = context.read<GetUserName>().state;
-    FirebaseDatabase.instance.ref("usersData/$currentUser").child("messagesList/$userName/").set({"123": "Say hii to $userName"});
-    FirebaseDatabase.instance.ref("usersData/$userName").child("messagesList/$currentUser/").set({"125": "Say hii to $currentUser"});
-  }
-
-  getMessagesList(BuildContext context, String currentUser, String receiver) async {
-    await context.read<SentMessagesCubit>().getSentMessagesList(currentUser, receiver);
-    await context.read<ReceivedMessagesCubit>().getSentMessagesList(receiver, currentUser);
-  }
-
-  String receiverName;
-  _ChatState(this.receiverName);
-  List<Color> heartColorList = [Colors.white, Colors.red];
-  var heartColor = Colors.white;
-  TextEditingController inputMessage = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     context.read<GetUserDataCubit>().getSnapshotValue(context.read<GetUserName>().state);
@@ -66,14 +54,23 @@ class _ChatState extends State<Chat> with AutomaticKeepAliveClientMixin {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          CircleAvatar(
-            maxRadius: 14,
-            child: Image.asset(
-              "assets/defaultprofile.png",
-              alignment: Alignment.centerLeft,
-              fit: BoxFit.cover,
-            ),
-          ),
+          ValueListenableBuilder(
+              valueListenable: imageString,
+              builder: (context, value, child) {
+                print(value);
+                return CircleAvatar(
+                  maxRadius: 14,
+                  foregroundImage: image != ''
+                      ? Image.network(image).image
+                      : value == ''
+                          ? Image.asset(
+                              "assets/defaultprofile.png",
+                              alignment: Alignment.centerLeft,
+                              fit: BoxFit.cover,
+                            ).image
+                          : Image.network(value).image,
+                );
+              }),
           const Padding(padding: EdgeInsets.only(left: 8.0)),
           IconButton(
             onPressed: (() {
@@ -230,6 +227,30 @@ class _ChatState extends State<Chat> with AutomaticKeepAliveClientMixin {
       ),
     );
   }
+  // function to send message to messagesList of current user of app
+
+  sendtheMessage(String message, String sender, String receiver, String timeasMillisecondsepoch) async {
+    FirebaseDatabase.instance.ref("usersData/$sender/messagesList/$receiver/").update({timeasMillisecondsepoch: message});
+    FirebaseDatabase.instance.ref("usersData/$receiver/receivedList/$sender/").update({timeasMillisecondsepoch: message});
+  }
+
+  createMessagesList(BuildContext context, String userName) {
+    String currentUser = context.read<GetUserName>().state;
+    FirebaseDatabase.instance.ref("usersData/$currentUser").child("messagesList/$userName/").set({"123": "Say hii to $userName"});
+    FirebaseDatabase.instance.ref("usersData/$userName").child("messagesList/$currentUser/").set({"125": "Say hii to $currentUser"});
+  }
+
+  getMessagesList(BuildContext context, String currentUser, String receiver) async {
+    await context.read<SentMessagesCubit>().getSentMessagesList(currentUser, receiver);
+    await context.read<ReceivedMessagesCubit>().getSentMessagesList(receiver, currentUser);
+  }
+
+  getImage() {
+    String image = '';
+    FirebaseDatabase.instance.ref("usersData").child(receiverName).onValue.listen((DatabaseEvent event) {
+      imageString.value = (event.snapshot.value as Map)['photoUrl'];
+    });
+  }
 }
 
 // To generate list of widgets of text
@@ -249,11 +270,7 @@ List<Widget> listofWidgets(BuildContext context, userName, receiverName) {
                 .read<DateTimeCubit>()
                 .setDateTime(context.read<ReceivedMessagesCubit>().state.keys.elementAt(context.read<ReceivedMessagesCubit>().state.length - context.read<ReceivedIndexPointerCubit>().state - 1));
           }
-          print(index);
-          print("block 3");
-          print(
-              "Message text No: ${context.read<ReceivedMessagesCubit>().state.values.elementAt(context.read<ReceivedMessagesCubit>().state.length - context.read<ReceivedIndexPointerCubit>().state - 1)}");
-          print(context.read<ReceivedMessagesCubit>().state.length - context.read<ReceivedIndexPointerCubit>().state - 1);
+
           //  context.read<ReceivedIndexPointerCubit>().state = context.read<ReceivedIndexPointerCubit>().state - 1;
           context.read<ReceivedIndexPointerCubit>().isReceivedIndexPointer(context.read<ReceivedIndexPointerCubit>().state - 1);
           context.read<IsReceivedCubit>().messageIsReceivedOne();
@@ -269,18 +286,12 @@ List<Widget> listofWidgets(BuildContext context, userName, receiverName) {
                 .read<DateTimeCubit>()
                 .setDateTime(context.read<SentMessagesCubit>().state.keys.elementAt(context.read<SentMessagesCubit>().state.length - context.read<InputIndexPointerCubit>().state - 1));
           }
-          print("block 4");
-          print("Message text No: ${Msg[context.read<SentMessagesCubit>().state.length - context.read<InputIndexPointerCubit>().state - 1]}");
-          print(index);
-          print(context.read<InputIndexPointerCubit>().state);
 
           context.read<InputIndexPointerCubit>().isInputIndexPointer(context.read<InputIndexPointerCubit>().state - 1);
           context.read<IsReceivedCubit>().messageIsSentOne();
-          print(context.read<InputIndexPointerCubit>().state);
         }
       } else if (context.read<InputIndexPointerCubit>().state < 0 || context.read<ReceivedIndexPointerCubit>().state < 0) {
         if (context.read<InputIndexPointerCubit>().state >= 0 && context.read<ReceivedIndexPointerCubit>().state < 0) {
-          print("block 1");
           context
               .read<MessageCubit>()
               .inputMessage(context.read<SentMessagesCubit>().state.values.elementAt(context.read<SentMessagesCubit>().state.length - context.read<InputIndexPointerCubit>().state - 1));
@@ -289,16 +300,9 @@ List<Widget> listofWidgets(BuildContext context, userName, receiverName) {
                 .read<DateTimeCubit>()
                 .setDateTime(context.read<SentMessagesCubit>().state.keys.elementAt(context.read<SentMessagesCubit>().state.length - context.read<InputIndexPointerCubit>().state - 1));
           }
-          print("Message text no: ${context.read<SentMessagesCubit>().state.values.elementAt(context.read<SentMessagesCubit>().state.length - context.read<InputIndexPointerCubit>().state - 1)}");
           context.read<InputIndexPointerCubit>().isInputIndexPointer(context.read<InputIndexPointerCubit>().state - 1);
           context.read<IsReceivedCubit>().messageIsSentOne();
-          print(index);
-
-          print(context.read<SentMessagesCubit>().state.length - context.read<InputIndexPointerCubit>().state - 1);
         } else if (context.read<ReceivedIndexPointerCubit>().state >= 0 && context.read<InputIndexPointerCubit>().state < 0) {
-          print("block 2");
-          print(context.read<ReceivedMessagesCubit>().state.values.elementAt(context.read<ReceivedMessagesCubit>().state.length - context.read<ReceivedIndexPointerCubit>().state - 1));
-
           List Msg = context.read<ReceivedMessagesCubit>().state.values.toList();
           context.read<MessageCubit>().inputMessage(Msg[context.read<ReceivedMessagesCubit>().state.length - context.read<ReceivedIndexPointerCubit>().state - 1]);
           if (context.read<ReceivedMessagesCubit>().state.keys.elementAt(context.read<ReceivedMessagesCubit>().state.length - context.read<ReceivedIndexPointerCubit>().state - 1) > 1000) {
@@ -307,13 +311,8 @@ List<Widget> listofWidgets(BuildContext context, userName, receiverName) {
                 .setDateTime(context.read<ReceivedMessagesCubit>().state.keys.elementAt(context.read<ReceivedMessagesCubit>().state.length - context.read<ReceivedIndexPointerCubit>().state - 1));
           }
 
-          print("Message text no: ${Msg[context.read<ReceivedMessagesCubit>().state.length - context.read<ReceivedIndexPointerCubit>().state - 1]}");
-          print(index);
-          print(context.read<ReceivedIndexPointerCubit>().state);
-          print(context.read<ReceivedMessagesCubit>().state.length - context.read<ReceivedIndexPointerCubit>().state - 1);
           context.read<ReceivedIndexPointerCubit>().isReceivedIndexPointer(context.read<ReceivedIndexPointerCubit>().state - 1);
           context.read<IsReceivedCubit>().messageIsReceivedOne();
-          print(context.read<ReceivedIndexPointerCubit>().state);
         }
       }
       context.read<DateCubit>().checkDateChange(context.read<DateTimeCubit>().state, context);
@@ -341,7 +340,7 @@ List<Widget> listofWidgets(BuildContext context, userName, receiverName) {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
                           elevation: 5.0,
                           surfaceTintColor: Colors.amberAccent,
-                          color: const Color.fromARGB(255, 245, 137, 137),
+                          color: const Color.fromARGB(255, 185, 182, 182),
                           child: Padding(
                             padding: const EdgeInsets.all(10.0),
                             child: context.read<MessageCubit>().state != currentUser && context.read<MessageCubit>().state != receiverName
@@ -386,7 +385,7 @@ List<Widget> listofWidgets(BuildContext context, userName, receiverName) {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
                           elevation: 5.0,
                           surfaceTintColor: Colors.amberAccent,
-                          color: const Color.fromARGB(255, 245, 137, 137),
+                          color: const Color.fromARGB(255, 15, 156, 226),
                           child: Padding(
                             padding: const EdgeInsets.all(10.0),
                             child: context.read<MessageCubit>().state != currentUser && context.read<MessageCubit>().state != receiverName
@@ -421,196 +420,3 @@ List<Widget> listofWidgets(BuildContext context, userName, receiverName) {
   );
   return list;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//todo: implement delete the message
-// onLongPress: () {
-//   final snackBar = SnackBar(
-//     content: Text("Do you want to delete this message?"),
-//     action: SnackBarAction(
-//         label: "Delete message",
-//         onPressed: () {
-//           context.read<MessageListCubit>().state.remove(context.read<MessageListCubit>().state.reversed.toList()[index]);
-
-//           messages = context.read<MessageListCubit>().state.reversed.toList().reversed.toList();
-//           if (context.read<MessageListCubit>().state.length == 0) {
-//             context.read<MessageListCubit>().emitList([]);
-//           } else {
-//             context.read<MessageListCubit>().emitList(messages);
-//           }
-//         }),
-//   );
-//   ScaffoldMessenger.of(context).showSnackBar(snackBar);
-// },
-
-
-
-
-
-
-
-//list.generate implementation:
-// itemCount: (context.read<ReceivedMessagesCubit>().state.length + context.read<SentMessagesCubit>().state.length),
-                              // itemBuilder: (context, index) {
-                              // if (context.read<ReceivedIndexPointerCubit>().state >= 0 && context.read<InputIndexPointerCubit>().state >= 0) {
-                              //   if (((context
-                              //           .read<ReceivedMessagesCubit>()
-                              //           .state
-                              //           .keys
-                              //           .elementAt(context.read<ReceivedMessagesCubit>().state.length - context.read<ReceivedIndexPointerCubit>().state - 1) <
-                              //       context.read<SentMessagesCubit>().state.keys.elementAt(context.read<SentMessagesCubit>().state.length - context.read<InputIndexPointerCubit>().state - 1)))) {
-                              //     context.read<MessageCubit>().inputMessage(context
-                              //         .read<ReceivedMessagesCubit>()
-                              //         .state
-                              //         .values
-                              //         .elementAt(context.read<ReceivedMessagesCubit>().state.length - context.read<ReceivedIndexPointerCubit>().state - 1));
-                              //     print(index);
-                              //     print("block 3");
-                              //     print(context
-                              //         .read<ReceivedMessagesCubit>()
-                              //         .state
-                              //         .values
-                              //         .elementAt(context.read<ReceivedMessagesCubit>().state.length - context.read<ReceivedIndexPointerCubit>().state - 1));
-                              //     print(context.read<ReceivedMessagesCubit>().state.length - context.read<ReceivedIndexPointerCubit>().state - 1);
-                              //     //  context.read<ReceivedIndexPointerCubit>().state = context.read<ReceivedIndexPointerCubit>().state - 1;
-                              //     context.read<ReceivedIndexPointerCubit>().isReceivedIndexPointer(context.read<ReceivedIndexPointerCubit>().state - 1);
-                              //     context.read<IsReceivedCubit>().messageIsReceivedOne();
-                              //   }
-
-                              //   // if (context.read<InputIndexPointerCubit>().state >= 0 && context.read<ReceivedIndexPointerCubit>().state >= 0)
-                              //   else if (context.read<SentMessagesCubit>().state.keys.elementAt(context.read<SentMessagesCubit>().state.length - context.read<InputIndexPointerCubit>().state - 1) <=
-                              //       context
-                              //           .read<ReceivedMessagesCubit>()
-                              //           .state
-                              //           .keys
-                              //           .elementAt(context.read<ReceivedMessagesCubit>().state.length - context.read<ReceivedIndexPointerCubit>().state - 1)) {
-                              //     List Msg = context.read<SentMessagesCubit>().state.values.toList();
-                              //     context.read<MessageCubit>().inputMessage(Msg[context.read<SentMessagesCubit>().state.length - context.read<InputIndexPointerCubit>().state - 1]);
-                              //     print("block 4");
-                              //     print(Msg);
-                              //     print(index);
-                              //     print(context.read<InputIndexPointerCubit>().state);
-                              //     print(context.read<SentMessagesCubit>().state.length - context.read<InputIndexPointerCubit>().state - 1);
-
-                              //     context.read<InputIndexPointerCubit>().isInputIndexPointer(context.read<InputIndexPointerCubit>().state - 1);
-                              //     context.read<IsReceivedCubit>().messageIsSentOne();
-                              //     print(context.read<InputIndexPointerCubit>().state);
-                              //   }
-                              // } else if (context.read<InputIndexPointerCubit>().state < 0 || context.read<ReceivedIndexPointerCubit>().state < 0) {
-                              //   if (context.read<InputIndexPointerCubit>().state >= 0 && context.read<ReceivedIndexPointerCubit>().state < 0) {
-                              //     print("block 1");
-                              //     context.read<MessageCubit>().inputMessage(
-                              //         context.read<SentMessagesCubit>().state.values.elementAt(context.read<SentMessagesCubit>().state.length - context.read<InputIndexPointerCubit>().state - 1));
-                              //     context.read<InputIndexPointerCubit>().isInputIndexPointer(context.read<InputIndexPointerCubit>().state - 1);
-                              //     context.read<IsReceivedCubit>().messageIsSentOne();
-                              //     print(index);
-
-                              //     print(context.read<SentMessagesCubit>().state.length - context.read<InputIndexPointerCubit>().state - 1);
-                              //   } else if (context.read<ReceivedIndexPointerCubit>().state >= 0 && context.read<InputIndexPointerCubit>().state < 0) {
-                              //     print("block 2");
-                              //     print(context
-                              //         .read<ReceivedMessagesCubit>()
-                              //         .state
-                              //         .values
-                              //         .elementAt(context.read<ReceivedMessagesCubit>().state.length - context.read<ReceivedIndexPointerCubit>().state - 1));
-
-                              //     List Msg = context.read<ReceivedMessagesCubit>().state.values.toList();
-                              //     context.read<MessageCubit>().inputMessage(Msg[context.read<ReceivedMessagesCubit>().state.length - context.read<ReceivedIndexPointerCubit>().state - 1]);
-
-                              //     print(index);
-                              //     print(context.read<ReceivedIndexPointerCubit>().state);
-                              //     print(context.read<ReceivedMessagesCubit>().state.length - context.read<ReceivedIndexPointerCubit>().state - 1);
-                              //     context.read<ReceivedIndexPointerCubit>().isReceivedIndexPointer(context.read<ReceivedIndexPointerCubit>().state - 1);
-                              //     context.read<IsReceivedCubit>().messageIsReceivedOne();
-                              //     print(context.read<ReceivedIndexPointerCubit>().state);
-                              //   }
-                              // }
-
-                              // return Container(
-                              //   width: MediaQuery.of(context).size.width,
-                              //   padding: const EdgeInsets.only(bottom: 10.0),
-                              //   height: 100,
-                              //   child: ListView(
-                              //     reverse: context.read<IsReceivedCubit>().state,
-                              //     scrollDirection: Axis.horizontal,
-                              //     children: [
-                              //       //padding before Text
-
-                              //       SizedBox(
-                              //         width: 100,
-                              //       ),
-
-                              //       //todo: display message
-
-                              //       Container(
-                              //         alignment: Alignment.centerRight,
-                              //         //gesture detector for snackbar
-                              //         child: GestureDetector(
-                              //           //todo: implement delete the message
-                              //           // onLongPress: () {
-                              //           //   final snackBar = SnackBar(
-                              //           //     content: Text("Do you want to delete this message?"),
-                              //           //     action: SnackBarAction(
-                              //           //         label: "Delete message",
-                              //           //         onPressed: () {
-                              //           //           context.read<MessageListCubit>().state.remove(context.read<MessageListCubit>().state.reversed.toList()[index]);
-
-                              //           //           messages = context.read<MessageListCubit>().state.reversed.toList().reversed.toList();
-                              //           //           if (context.read<MessageListCubit>().state.length == 0) {
-                              //           //             context.read<MessageListCubit>().emitList([]);
-                              //           //           } else {
-                              //           //             context.read<MessageListCubit>().emitList(messages);
-                              //           //           }
-                              //           //         }),
-                              //           //   );
-                              //           //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                              //           // },
-                              //           child: Card(
-                              //             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-                              //             elevation: 5.0,
-                              //             surfaceTintColor: Colors.amberAccent,
-                              //             color: const Color.fromARGB(255, 245, 137, 137),
-                              //             child: Padding(
-                              //               padding: EdgeInsets.all(10.0),
-                              //               child: context.read<MessageCubit>().state == ""
-                              //                   ? Container(
-                              //                       width: 1,
-                              //                       height: 1,
-                              //                       decoration: backgroundGradient(),
-                              //                     )
-                              //                   : Text(
-                              //                       context.read<MessageCubit>().state,
-                              //                       style: const TextStyle(fontSize: 18.0),
-                              //                     ),
-                              //             ),
-                              //           ),
-                              //         ),
-                              //       ),
-                              //     ],
-                              //   ),
-                              // );
-                              // },

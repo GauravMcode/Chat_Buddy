@@ -6,6 +6,8 @@ import 'package:chatapp/Screens/Stories.dart';
 import 'package:chatapp/auxilaries/SearchDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'profile.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -33,14 +35,17 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     InputSearchCubit();
     context.read<GetUsersListCubit>().getSnapshotValue();
+    context.read<GetUserDataCubit>().getSnapshotValue('hello_1');
+    FlutterNativeSplash.remove();
   }
 
   @override
   Widget build(BuildContext context) {
+    final userData = context.read<GetUserDataCubit>().state;
+
     return context.read<GetUsersListCubit>().state == []
         ? const Center(
             child: CircularProgressIndicator(),
@@ -50,14 +55,19 @@ class _HomePageState extends State<HomePage> {
               actions: [
                 IconButton(onPressed: (() {}), icon: const Icon(Icons.settings)),
               ],
-              title: Text(context.read<GetUserName>().state),
+              title: const Text(
+                'Chat-buddy',
+                style: TextStyle(fontFamily: 'Alkatra'),
+              ),
               leading: Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: CircleAvatar(
-                  child: Image.asset(
-                    "assets/defaultprofile.png",
-                    alignment: Alignment.centerLeft,
-                    fit: BoxFit.contain,
+                child: InkWell(
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const Profile(),
+                  )),
+                  child: CircleAvatar(
+                    backgroundImage: NetworkImage(userData['photoUrl']),
+                    radius: 30,
                   ),
                 ),
               ),
