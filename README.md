@@ -11,7 +11,7 @@ It is a Full stack Chat Application using **Flutter** and **Firebase**. It allow
 
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/51371766/230991064-a0204538-da9f-4db9-ad62-e382a4940434.gif" width="300" height="600" alt="Chat Buddy" >
+<img src="https://user-images.githubusercontent.com/51371766/231000915-01d66a57-65cf-4d03-a8dc-dbb2e59ffe3c.gif" width="300" height="600" alt="Chat Buddy" >
 </p>
 
 ## Getting Started
