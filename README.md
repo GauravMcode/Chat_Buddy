@@ -1,14 +1,39 @@
-# chatapp
+# TODO App
 
-A Full-Stack Chat Application using Firebase and Flutter.
+It is a Full stack Chat Application using **Flutter** and **Firebase**. It allows real-time messaging to registered users. It uses Flutter Bloc for State Management.
+>Sailent features:
+>> User Registration with validation
+>> Authentication
+>> Real-time messaging
+>> Notifications
+>> Search users
+
+
+<p align="center">
+<img src="https://user-images.githubusercontent.com/51371766/230789915-98a80f15-1d9f-4c70-8591-826780db578c.gif" width="300" height="600" alt="View Contact" >
+</p>
 
 ## Getting Started
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+The Home Screen contains list of all saved Todos fetched from local **SQLite Database** :
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+<p align="center">
+<img  src="https://user-images.githubusercontent.com/51371766/230789913-03f67370-6e7a-48b4-8a8f-722127ea6bbb.png"  width="250" height="500" alt="Home Screen" >
+</p>
+
+Tap on a Floating Action Button to add notes.
+
+<pre>
+<p align="center">
+<img src="https://user-images.githubusercontent.com/51371766/230789920-fa5e967d-e10c-4384-bb96-5cbb09371857.png" width="250" height="500" alt="Add Todo" >          <img src="https://user-images.githubusercontent.com/51371766/230789921-56c0482a-2223-4f1b-93a8-f952f3fab653.png" width="250" height="500" alt="Add Todo" >
+</p>
+</pre>
+
+To edit a Todo, click on the Todo. It will open the edit Todo screen.
+To delete, click on delete icon, that will show an alert dialog to confirm.
+
+<p align="center">
+<img  src="https://user-images.githubusercontent.com/51371766/230789922-09265161-9a48-4778-b7e0-3fde75867403.png"  width="250" height="500" alt="Delete Contact" >
+</p>
+
