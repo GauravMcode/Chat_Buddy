@@ -38,11 +38,13 @@ dependencies:
     sdk: flutter
   flutter_animated_dialog: ^2.0.1
   flutter_bloc: ^8.1.1
-  flutter_native_splash: 
+  flutter_local_notifications: ^13.0.0
+  flutter_native_splash: null
   http: ^0.13.5
   path: ^1.8.2
 
 dev_dependencies:
+  flutter_launcher_icons: "^0.13.0"
   flutter_lints: ^2.0.0
   flutter_test:
     sdk: flutter

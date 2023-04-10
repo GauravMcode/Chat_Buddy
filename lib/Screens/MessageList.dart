@@ -2,6 +2,7 @@ import 'package:chatapp/Logic/LogicMethods.dart';
 import 'package:chatapp/Screens/Chat.dart';
 import 'package:chatapp/auxilaries/Colors.dart';
 import 'package:chatapp/Logic/CubitLogic.dart';
+import 'package:chatapp/notifications/notifications.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,7 +16,8 @@ class MessageList extends StatefulWidget {
 
 class _MessageListState extends State<MessageList> {
   List listofChatUsers = [];
-  ValueNotifier<List<String>> imagesList = ValueNotifier(<String>[]);
+  Map<String, String> userUnreads = {};
+  ValueNotifier<Map<String, String>> imagesMap = ValueNotifier(<String, String>{});
 
   @override
   void initState() {
@@ -23,6 +25,8 @@ class _MessageListState extends State<MessageList> {
     super.initState();
     context.read<GetUserDataCubit>().getSnapshotValue(context.read<GetUserName>().state);
     listofChatUsers = getListOfUsersInMessagesList(context);
+    context.read<SentMessagesCubit>().emptySentMessages();
+    context.read<ReceivedMessagesCubit>().emptyRecievedMessages();
   }
 
   // navigateToChat() {
@@ -31,7 +35,10 @@ class _MessageListState extends State<MessageList> {
 
   @override
   Widget build(BuildContext context) {
-    imagesList.value = getImagesList(listofChatUsers);
+    imagesMap.value = getImagesList(listofChatUsers);
+    for (var element in listofChatUsers) {
+      userUnreads[element] = '';
+    }
 
     return BlocBuilder<GetUserDataCubit, dynamic>(
       builder: (context, state) {
@@ -97,12 +104,22 @@ class _MessageListState extends State<MessageList> {
                             if (context.read<GetUserDataCubit>().state["receivedReadPointers"][listofChatUsers[index]] != null &&
                                 context.read<GetUserDataCubit>().state["receivedReadPointers"][listofChatUsers[index]] < maxReceivedTime) {
                               notReadcount = msgReceivedListKeys.length - msgReceivedListKeys.indexOf(context.read<GetUserDataCubit>().state["receivedReadPointers"][listofChatUsers[index]]) - 1;
+
+                              //To check if notification is not done, then only show notification
+                              if (notReadcount != 0 && userUnreads[listofChatUsers[index]] != "$maxReceivedTime") {
+                                SimpleNotificataion().showNotification(
+                                    id: index,
+                                    title: '${listofChatUsers[index]} sent $notReadcount Message${notReadcount == 1 ? '' : 's'}',
+                                    body: lastMessage,
+                                    payload: 'simple.msg&${DateTime.now().millisecondsSinceEpoch}');
+                              }
+                              userUnreads[listofChatUsers[index]] = "$maxReceivedTime"; //to madify userReads, so that notification doesn't repeat
                             }
                           }
                         }
                         return ListTile(
                           leading: ValueListenableBuilder(
-                              valueListenable: imagesList,
+                              valueListenable: imagesMap,
                               builder: (context, value, child) {
                                 return CircleAvatar(
                                   radius: 30,
@@ -118,14 +135,14 @@ class _MessageListState extends State<MessageList> {
                                               alignment: Alignment.centerLeft,
                                               fit: BoxFit.contain,
                                             ).image
-                                          : value[index] == ''
+                                          : value[listofChatUsers[index]] == null || value[listofChatUsers[index]] == ''
                                               ? Image.asset(
                                                   'assets/defaultprofile.png',
                                                   alignment: Alignment.centerLeft,
                                                   fit: BoxFit.contain,
                                                 ).image
                                               : Image.network(
-                                                  value[index],
+                                                  value[listofChatUsers[index]]!,
                                                   alignment: Alignment.centerLeft,
                                                   fit: BoxFit.contain,
                                                 ).image,
@@ -167,7 +184,7 @@ class _MessageListState extends State<MessageList> {
                           onTap: () {
                             // context.read<SentMessagesCubit>().getSentMessagesList(context.read<GetUserName>().state, listofChatUsers[index]);
                             // context.read<ReceivedMessagesCubit>().getSentMessagesList(listofChatUsers[index], context.read<GetUserName>().state);
-                            Navigator.of(context).push(MaterialPageRoute(builder: ((context) => Chat(listofChatUsers[index], imagesList.value[index]))));
+                            Navigator.of(context).push(MaterialPageRoute(builder: ((context) => Chat(listofChatUsers[index], imagesMap.value[listofChatUsers[index]] ?? ''))));
                             context.read<SentMessagesCubit>().getSentMessagesList(context.read<GetUserName>().state, listofChatUsers[index]);
                             context.read<ReceivedMessagesCubit>().getSentMessagesList(listofChatUsers[index], context.read<GetUserName>().state);
                           },
@@ -178,12 +195,11 @@ class _MessageListState extends State<MessageList> {
     );
   }
 
-  List<String> getImagesList(List chatUsersList) {
-    List<String> imageList = [];
+  Map<String, String> getImagesList(List chatUsersList) {
+    Map<String, String> imageList = {};
     for (var element in chatUsersList) {
-      print(chatUsersList);
       FirebaseDatabase.instance.ref("usersData").child("$element").onValue.listen((DatabaseEvent event) {
-        imageList.add((event.snapshot.value as Map)['photoUrl']);
+        imageList[element] = "${(event.snapshot.value as Map)['photoUrl']}";
       });
     }
     return imageList;

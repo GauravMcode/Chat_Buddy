@@ -53,6 +53,9 @@ class _ChatState extends State<Chat> with AutomaticKeepAliveClientMixin {
     chatUsers = getListOfUsersInMessagesList(context);
     return Scaffold(
       appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: foregroundGradient(),
+        ),
         actions: [
           ValueListenableBuilder(
               valueListenable: imageString,
@@ -181,8 +184,7 @@ class _ChatState extends State<Chat> with AutomaticKeepAliveClientMixin {
                         color: const Color.fromARGB(0, 255, 255, 255),
                         alignment: Alignment.topRight,
                         child: RawMaterialButton(
-                          padding: const EdgeInsets.all(10.0),
-                          fillColor: colors1[0],
+                          // padding: const EdgeInsets.all(10.0),
                           onPressed: () {
                             DateTime dateTime = DateTime.now();
                             String sendTime = "${dateTime.millisecondsSinceEpoch}";
@@ -191,27 +193,23 @@ class _ChatState extends State<Chat> with AutomaticKeepAliveClientMixin {
                               FocusManager.instance.primaryFocus?.unfocus();
                               //To scroll to bottom
                               _scrollController1.animateTo(_scrollController1.position.maxScrollExtent, duration: const Duration(milliseconds: 500), curve: Curves.fastOutSlowIn);
-
-                              //   // context.read<MessageListCubit>().addMessageToList(messages, Message);
                               sendtheMessage(context.read<InputSearchCubit>().state, context.read<GetUserName>().state, receiverName, sendTime);
 
-                              // // context.read<MessageCubit>().inputMessage(Message);
                               //TO CLEAR TEXTCONTROLLER
                               inputMessage.clear();
-
                               context.read<InputSearchCubit>().stopInputing();
-
-                              // // Message = "";
                             }
                           },
-                          shape: const CircleBorder(),
                           elevation: 5.0,
-                          child: const Padding(
-                            padding: EdgeInsets.only(left: 4.0),
-                            child: Icon(
-                              Icons.send,
-                              size: 30.0,
-                              color: Colors.white,
+                          child: DecoratedBox(
+                            decoration: foregroundGradient(),
+                            child: const Padding(
+                              padding: EdgeInsets.only(left: 4.0),
+                              child: Icon(
+                                Icons.send,
+                                size: 40.0,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 MaterialColor mycolor = MaterialColor(
   const Color.fromARGB(255, 65, 60, 88).value,
   const <int, Color>{
-    900: Color.fromARGB(255, 65, 60, 88),
-    800: Color.fromARGB(255, 103, 95, 138),
+    900: Color.fromARGB(255, 59, 148, 200),
+    800: Color.fromARGB(255, 6, 169, 214),
     700: Color.fromARGB(255, 163, 196, 188),
     600: Color.fromARGB(255, 169, 199, 191),
     500: Color.fromARGB(255, 191, 215, 181),
@@ -41,7 +41,12 @@ List<Color> colorsGradient = [
 ];
 
 BoxDecoration backgroundGradient([border]) {
-  return BoxDecoration(borderRadius: border, gradient: LinearGradient(colors: colorsGradient, begin: Alignment.topCenter, end: Alignment.bottomLeft));
+  return BoxDecoration(
+      borderRadius: border, gradient: const LinearGradient(colors: [Color.fromARGB(255, 255, 255, 255), Color.fromARGB(255, 92, 190, 246)], begin: Alignment.topCenter, end: Alignment.bottomLeft));
+}
+
+BoxDecoration foregroundGradient() {
+  return const BoxDecoration(gradient: LinearGradient(colors: [Color.fromARGB(255, 92, 190, 246), Color.fromARGB(255, 2, 86, 114)], begin: Alignment.topCenter, end: Alignment.bottomLeft));
 }
 
 

@@ -115,6 +115,10 @@ class SentMessagesCubit extends Cubit<Map> {
       emit(sortedByKeyMap);
     });
   }
+
+  emptySentMessages() {
+    emit({});
+  }
 }
 
 class ReceivedMessagesCubit extends Cubit<Map> {
@@ -131,6 +135,10 @@ class ReceivedMessagesCubit extends Cubit<Map> {
       var sortedByKeyMap = SplayTreeMap<int, String>.from(toBeSorted, (k1, k2) => k1.compareTo(k2));
       emit(sortedByKeyMap);
     });
+  }
+
+  emptyRecievedMessages() {
+    emit({});
   }
 }
 

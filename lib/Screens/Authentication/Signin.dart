@@ -24,13 +24,6 @@ class _SigninState extends State<Signin> {
     FlutterNativeSplash.remove();
   }
 
-  // @override
-  // void deactivate() {
-  //   // TODO: implement deactivate
-  //   super.deactivate();
-  //   context.read<GetUserDataCubit>().resetCubit();
-  // }
-
   var email;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
@@ -99,15 +92,6 @@ class _SigninState extends State<Signin> {
   navigateToSignupScreen() {
     Navigator.push(context, MaterialPageRoute(builder: ((context) => const Signup())));
   }
-  // navigateToHomeScreen() {
-  //   Navigator.pushReplacement(
-  //       context,
-  //       MaterialPageRoute(
-  //           builder: ((context) => DefaultTabController(
-  //                 length: 3,
-  //                 child: HomePage(),
-  //               ))));
-  // }
 
   //Text Editing controllers:
   final TextEditingController _userNameController = TextEditingController();
@@ -117,22 +101,27 @@ class _SigninState extends State<Signin> {
   SnackBar snackBar = SnackBar(
     duration: const Duration(milliseconds: 1200),
     dismissDirection: DismissDirection.up,
-    content: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          "Signing In",
-          style: TextStyle(color: colors1[5]),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: CircularProgressIndicator(
-            color: colors1[5],
+    content: Container(
+      decoration: foregroundGradient(),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              "Signing In",
+              style: TextStyle(color: colors1[5], fontSize: 20),
+            ),
           ),
-        )
-      ],
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: CircularProgressIndicator(
+              color: colors1[5],
+            ),
+          )
+        ],
+      ),
     ),
-    backgroundColor: colors1[0],
     elevation: 5.0,
     padding: const EdgeInsets.all(5.0),
   );
@@ -142,6 +131,9 @@ class _SigninState extends State<Signin> {
     context.read<GetUserDataCubit>().getSnapshotValue(context.read<InputSearchCubit>().state);
     return Scaffold(
       appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: foregroundGradient(),
+        ),
         title: const Text(
           "Sign-In to Chat-buddy",
           style: TextStyle(fontFamily: 'Alkatra'),
@@ -159,7 +151,7 @@ class _SigninState extends State<Signin> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 5, 10, 30),
+                      padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
                       child: Image.asset(
                         'assets/logo.png',
                         width: 250,
@@ -194,10 +186,23 @@ class _SigninState extends State<Signin> {
                           )),
                     ),
                     ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.all(0.0),
+                        elevation: 5,
+                      ),
+                      child: Ink(
+                        decoration: foregroundGradient(),
+                        child: Container(
+                            padding: const EdgeInsets.all(10),
+                            constraints: const BoxConstraints(minWidth: 88.0),
+                            child: const Text(
+                              "Sign-In",
+                              textAlign: TextAlign.center,
+                            )),
+                      ),
                       onPressed: () async {
                         if (_formkey.currentState!.validate()) {
                           FocusManager.instance.primaryFocus?.unfocus();
-
                           if (!context.read<GetUsersListCubit>().state.contains(context.read<InputSearchCubit>().state)) {
                             showError("User Name doesn't Exist");
                           }
@@ -206,7 +211,6 @@ class _SigninState extends State<Signin> {
                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         }
                       },
-                      child: const Text("Sign-In"),
                     ),
                     const Padding(padding: EdgeInsets.all(10.0)),
                     Row(

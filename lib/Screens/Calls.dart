@@ -15,7 +15,7 @@ class Calls extends StatefulWidget {
 
 class _CallsState extends State<Calls> {
   List listofChatUsers = [];
-  ValueNotifier<List<String>> imagesList = ValueNotifier(<String>[]);
+  ValueNotifier<Map<String, String>> imagesMap = ValueNotifier(<String, String>{});
 
   @override
   void initState() {
@@ -31,7 +31,7 @@ class _CallsState extends State<Calls> {
 
   @override
   Widget build(BuildContext context) {
-    imagesList.value = getImagesList(listofChatUsers);
+    imagesMap.value = getImagesList(listofChatUsers);
 
     return BlocBuilder<GetUserDataCubit, dynamic>(
       builder: (context, state) {
@@ -102,36 +102,33 @@ class _CallsState extends State<Calls> {
                         }
                         return ListTile(
                           leading: ValueListenableBuilder(
-                              valueListenable: imagesList,
+                              valueListenable: imagesMap,
                               builder: (context, value, child) {
-                                return SizedBox(
-                                  height: 100,
-                                  width: 60,
-                                  child: CircleAvatar(
-                                    foregroundImage: value.isEmpty
-                                        ? Image.asset(
-                                            'assets/defaultprofile.png',
-                                            alignment: Alignment.centerLeft,
-                                            fit: BoxFit.scaleDown,
-                                          ).image
-                                        : value.length <= index
-                                            ? Image.asset(
-                                                'assets/defaultprofile.png',
-                                                alignment: Alignment.centerLeft,
-                                                fit: BoxFit.scaleDown,
-                                              ).image
-                                            : value[index] == ''
-                                                ? Image.asset(
-                                                    'assets/defaultprofile.png',
-                                                    alignment: Alignment.centerLeft,
-                                                    fit: BoxFit.scaleDown,
-                                                  ).image
-                                                : Image.network(
-                                                    value[index],
-                                                    alignment: Alignment.centerLeft,
-                                                    fit: BoxFit.scaleDown,
-                                                  ).image,
-                                  ),
+                                return CircleAvatar(
+                                  radius: 30,
+                                  foregroundImage: value.isEmpty
+                                      ? Image.asset(
+                                          'assets/defaultprofile.png',
+                                          alignment: Alignment.centerLeft,
+                                          fit: BoxFit.contain,
+                                        ).image
+                                      : value.length <= index
+                                          ? Image.asset(
+                                              'assets/defaultprofile.png',
+                                              alignment: Alignment.centerLeft,
+                                              fit: BoxFit.contain,
+                                            ).image
+                                          : value[listofChatUsers[index]] == null || value[listofChatUsers[index]] == ''
+                                              ? Image.asset(
+                                                  'assets/defaultprofile.png',
+                                                  alignment: Alignment.centerLeft,
+                                                  fit: BoxFit.contain,
+                                                ).image
+                                              : Image.network(
+                                                  value[listofChatUsers[index]]!,
+                                                  alignment: Alignment.centerLeft,
+                                                  fit: BoxFit.contain,
+                                                ).image,
                                 );
                               }),
                           trailing: SizedBox(
@@ -162,12 +159,11 @@ class _CallsState extends State<Calls> {
     );
   }
 
-  List<String> getImagesList(List chatUsersList) {
-    List<String> imageList = [];
+  Map<String, String> getImagesList(List chatUsersList) {
+    Map<String, String> imageList = {};
     for (var element in chatUsersList) {
-      print(chatUsersList);
       FirebaseDatabase.instance.ref("usersData").child("$element").onValue.listen((DatabaseEvent event) {
-        imageList.add((event.snapshot.value as Map)['photoUrl']);
+        imageList[element] = "${(event.snapshot.value as Map)['photoUrl']}";
       });
     }
     return imageList;

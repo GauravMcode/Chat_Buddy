@@ -1,14 +1,15 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 import 'package:chatapp/Logic/CubitLogic.dart';
 import 'package:chatapp/Screens/Authentication/Signin.dart';
 import 'package:chatapp/Screens/HomePage.dart';
-import 'package:chatapp/auxilaries/Colors.dart';
 
 import 'firebase_options.dart';
+import 'notifications/notifications.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -16,6 +17,11 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('logo');
+  //'flutter_logo' ->inside the android>app>src>main>res>drawable folder.
+
+  const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+  await notification.initialize(initializationSettings, onDidReceiveNotificationResponse: (details) async {});
   runApp(const MyApp());
 }
 
@@ -77,7 +83,7 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             title: "chat app",
-            theme: ThemeData(primarySwatch: mycolor),
+            theme: ThemeData(fontFamily: 'Alkatra'),
             home: context.read<AuthCubit>().state
                 ? const DefaultTabController(
                     length: 3,

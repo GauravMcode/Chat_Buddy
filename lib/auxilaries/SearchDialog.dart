@@ -28,6 +28,8 @@ showSearchDialog(BuildContext context, List users) {
   //transparent AlertDialog
   TextEditingController searchEditingController = TextEditingController();
 
+  ValueNotifier<Map<String, String>> imagesMap = ValueNotifier(<String, String>{});
+
   showAnimatedDialog(
       barrierDismissible: true,
       animationType: DialogTransitionType.slideFromBottomFade,
@@ -99,11 +101,8 @@ showSearchDialog(BuildContext context, List users) {
                         onChanged: (value) {
                           isTyping = true;
                           context.read<InputSearchCubit>().startInputing(searchEditingController.text);
-                          print(users);
-                          print(context.read<InputSearchCubit>().state);
-                          print(listToBeDisplayed);
-
                           searchForUsers(context, users, listToBeDisplayed);
+                          imagesMap.value = getImagesList(listToBeDisplayed);
                         },
                         decoration: InputDecoration(
                           focusedBorder: OutlineInputBorder(
@@ -171,13 +170,36 @@ showSearchDialog(BuildContext context, List users) {
                                                       mainAxisSize: MainAxisSize.max,
                                                       mainAxisAlignment: MainAxisAlignment.start,
                                                       children: [
-                                                        CircleAvatar(
-                                                          child: Image.asset(
-                                                            "assets/defaultprofile.png",
-                                                            alignment: Alignment.centerLeft,
-                                                            fit: BoxFit.cover,
-                                                          ),
-                                                        ),
+                                                        ValueListenableBuilder(
+                                                            valueListenable: imagesMap,
+                                                            builder: (context, value, child) {
+                                                              return CircleAvatar(
+                                                                radius: 30,
+                                                                foregroundImage: value.isEmpty
+                                                                    ? Image.asset(
+                                                                        'assets/defaultprofile.png',
+                                                                        alignment: Alignment.centerLeft,
+                                                                        fit: BoxFit.contain,
+                                                                      ).image
+                                                                    : value.length <= index
+                                                                        ? Image.asset(
+                                                                            'assets/defaultprofile.png',
+                                                                            alignment: Alignment.centerLeft,
+                                                                            fit: BoxFit.contain,
+                                                                          ).image
+                                                                        : value[listToBeDisplayed[index]] == null || value[listToBeDisplayed[index]] == ''
+                                                                            ? Image.asset(
+                                                                                'assets/defaultprofile.png',
+                                                                                alignment: Alignment.centerLeft,
+                                                                                fit: BoxFit.contain,
+                                                                              ).image
+                                                                            : Image.network(
+                                                                                value[listToBeDisplayed[index]]!,
+                                                                                alignment: Alignment.centerLeft,
+                                                                                fit: BoxFit.contain,
+                                                                              ).image,
+                                                              );
+                                                            }),
                                                         const SizedBox(
                                                           height: 50,
                                                           width: 30,
@@ -204,4 +226,14 @@ showSearchDialog(BuildContext context, List users) {
               ),
             ));
       }));
+}
+
+Map<String, String> getImagesList(List chatUsersList) {
+  Map<String, String> imageList = {};
+  for (var element in chatUsersList) {
+    FirebaseDatabase.instance.ref("usersData").child("$element").onValue.listen((DatabaseEvent event) {
+      imageList[element] = "${(event.snapshot.value as Map)['photoUrl']}";
+    });
+  }
+  return imageList;
 }

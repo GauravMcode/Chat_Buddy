@@ -52,8 +52,11 @@ class _HomePageState extends State<HomePage> {
           )
         : Scaffold(
             appBar: AppBar(
-              actions: [
-                IconButton(onPressed: (() {}), icon: const Icon(Icons.settings)),
+              flexibleSpace: Container(
+                decoration: foregroundGradient(),
+              ),
+              actions: const [
+                CircleAvatar(foregroundImage: AssetImage('assets/logo.png')),
               ],
               title: const Text(
                 'Chat-buddy',
@@ -88,18 +91,19 @@ class _HomePageState extends State<HomePage> {
                 ),
               ]),
             ),
-            floatingActionButton: FloatingActionButton(
-              backgroundColor: colors1[0],
-              hoverElevation: 10.0,
-              hoverColor: colors1[6],
-              child: Icon(
-                size: 35.0,
-                Icons.search,
-                color: colors1[9],
+            floatingActionButton: Ink(
+              decoration: foregroundGradient(),
+              child: FloatingActionButton(
+                hoverElevation: 10.0,
+                child: const Icon(
+                  size: 35.0,
+                  Icons.search,
+                  // color: colors1[9],
+                ),
+                onPressed: () {
+                  showSearchDialog(context, context.read<GetUsersListCubit>().state);
+                },
               ),
-              onPressed: () {
-                showSearchDialog(context, context.read<GetUsersListCubit>().state);
-              },
             ),
             body: const TabBarView(children: [
               MessageList(),

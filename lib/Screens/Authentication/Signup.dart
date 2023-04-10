@@ -116,22 +116,24 @@ class _SignupState extends State<Signup> {
   SnackBar snackBar = SnackBar(
     duration: const Duration(milliseconds: 2100),
     dismissDirection: DismissDirection.up,
-    content: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          "Signing In",
-          style: TextStyle(color: colors1[5]),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: CircularProgressIndicator(
-            color: colors1[5],
+    content: Container(
+      decoration: foregroundGradient(),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            "Signing In",
+            style: TextStyle(color: colors1[5], fontSize: 25),
           ),
-        )
-      ],
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: CircularProgressIndicator(
+              color: colors1[5],
+            ),
+          )
+        ],
+      ),
     ),
-    backgroundColor: colors1[0],
     elevation: 5.0,
     padding: const EdgeInsets.all(5.0),
   );
@@ -144,6 +146,9 @@ class _SignupState extends State<Signup> {
           )
         : Scaffold(
             appBar: AppBar(
+              flexibleSpace: Container(
+                decoration: foregroundGradient(),
+              ),
               title: const Text("Sign-Up to Chat-buddy", style: TextStyle(fontFamily: 'Alkatra')),
               actions: const [Icon(Icons.chat_bubble_rounded), SizedBox(width: 20)],
             ),
@@ -236,15 +241,29 @@ class _SignupState extends State<Signup> {
                       ),
                       const Padding(padding: EdgeInsets.only(top: 20.0)),
                       ElevatedButton(
-                          onPressed: () {
-                            if (_formkey.currentState!.validate()) {
-                              FocusManager.instance.primaryFocus?.unfocus();
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.all(0.0),
+                          elevation: 5,
+                        ),
+                        child: Ink(
+                          decoration: foregroundGradient(),
+                          child: Container(
+                              padding: const EdgeInsets.all(10),
+                              constraints: const BoxConstraints(minWidth: 88.0),
+                              child: const Text(
+                                "Sign-Up",
+                                textAlign: TextAlign.center,
+                              )),
+                        ),
+                        onPressed: () {
+                          if (_formkey.currentState!.validate()) {
+                            FocusManager.instance.primaryFocus?.unfocus();
 
-                              signUp();
-                              ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                            }
-                          },
-                          child: const Text("Sign-Up")),
+                            signUp();
+                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                          }
+                        },
+                      ),
                       // ElevatedButton(
                       //     onPressed: () {
                       //       setState(() {
