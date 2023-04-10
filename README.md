@@ -1,16 +1,17 @@
-# TODO App
+# Chat-Buddy
 
-It is a Full stack Chat Application using **Flutter** and **Firebase**. It allows real-time messaging to registered users. It uses Flutter Bloc for State Management.
->Sailent features:
->> User Registration with validation
->> Authentication
->> Real-time messaging
->> Notifications
->> Search users
+It is a Full stack Chat Application using **Flutter** and **Firebase**. It allows **real-time** messaging to registered users. It uses Flutter Bloc for State Management.
+
+### Sailent features:
+- User Registration with validation
+- Authentication
+- Real-time messaging
+- Notifications
+- Search users
 
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/51371766/230789915-98a80f15-1d9f-4c70-8591-826780db578c.gif" width="300" height="600" alt="View Contact" >
+<img src="https://user-images.githubusercontent.com/51371766/230991064-a0204538-da9f-4db9-ad62-e382a4940434.gif" width="300" height="600" alt="View Contact" >
 </p>
 
 ## Getting Started
