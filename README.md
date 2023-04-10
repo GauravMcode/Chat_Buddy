@@ -38,6 +38,7 @@ Sign-up & Sign in page :
 - *Calls*
 
 
+<pre>
 
 <p align="center">
 <img src="https://user-images.githubusercontent.com/51371766/230993296-6d0ae093-7de4-484f-934f-2516aeab528b.png" width="250" height="500" alt="message list" >          <img src="https://user-images.githubusercontent.com/51371766/230994151-cc4b22e4-cdd3-4ce6-888c-7e33b4bc2755.png" width="250" height="500" alt="Sign in" >               <img src="https://user-images.githubusercontent.com/51371766/230992496-5fd8c647-9ec5-4283-934f-4049055110e0.png" width="250" height="500" alt="Sign up" >
@@ -49,4 +50,27 @@ Also, the unread count shows the number of messages unread.
 
 <p align="center">
 <img  src="https://user-images.githubusercontent.com/51371766/230993449-6f9ad37f-fd35-4f19-bb46-6436fc2f5f77.png"  width="250" height="500" alt="notification" >
+</p>
+
+Search for users by tapping on the floating action button. It opens a Search Dialog:
+
+<pre>
+
+
+<p align="center">
+<img src="https://user-images.githubusercontent.com/51371766/230995317-94d95aef-c674-4a09-bd2e-7637b9e5e812.png" width="300" height="600" alt="search" >          <img src="https://user-images.githubusercontent.com/51371766/230995524-657dbcee-9c25-4ea0-9da7-8fa5846d4ebc.png" width="300" height="600" alt="Search long" >
+</p>
+</pre>
+
+Click on one of the users, it will open the chat screen.
+
+<p align="center">
+<img  src="https://user-images.githubusercontent.com/51371766/230996099-f1253d88-17a4-4baa-9ec8-adfbea147102.png"  width="250" height="500" alt="chat" >
+</p>
+
+To view your profile, click on your image on Home Screen.
+![profile]()
+
+<p align="center">
+<img  src="https://user-images.githubusercontent.com/51371766/230996458-68efc368-58d6-4407-86c1-05905abd9388.png"  width="250" height="500" alt="chat" >
 </p>
